@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>User Registration</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css" />
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Fungsi untuk menampilkan pesan alert
+        function showAlert(message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: message
+            });
+        }
+
+        // Fungsi untuk mendaftarkan user
+        // Fungsi untuk mendaftarkan user
+        function register() {
+            // Mengambil nilai input dari field ID, PW, dan Nickname
+            var id = $("#userid").val();
+            var pw = $("#userpw").val();
+            var nickname = $("#usernick").val();
+
+            // Memeriksa apakah input kosong
+            if (id === "") {
+                showAlert("Please fill in the ID field.");
+                return;
+            }
+            if (pw === "") {
+                showAlert("Please fill in the Password field.");
+                return;
+            }
+            if (pw.length < 6) {
+                showAlert("Password must be at least 6 characters long.");
+                return;
+            }
+            if (!/[A-Z]/.test(pw)) {
+                showAlert("Password must contain at least one uppercase letter.");
+                return;
+            }
+            if (!/\d/.test(pw)) {
+                showAlert("Password must contain at least one digit.");
+                return;
+            }
+            if (nickname === "") {
+                showAlert("Please fill in the Nickname field.");
+                return;
+            }
+
+            // Jika semua input tidak kosong, lanjutkan dengan pengiriman data ke server
+            $.ajax({
+                type: "POST",
+                url: "/api/register",
+                data: {
+                    id_give: id,
+                    pw_give: pw,
+                    nickname_give: nickname,
+                },
+                success: function(response) {
+                    if (response.result === "success") {
+                        // Tampilkan pesan SweetAlert "Registration successfully"
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Registration successfully',
+                            text: 'You have successfully registered!',
+                            showConfirmButton: false,
+                            timer: 1500 // Durasi pesan ditampilkan dalam milidetik (ms)
+                        }).then(function() {
+                            // Setelah pesan ditutup, arahkan ke halaman login
+                            window.location.href = "/login";
+                        });
+                    } else {
+                        // Jika pendaftaran gagal, tampilkan pesan alert
+                        showAlert(response.msg);
+                    }
+                },
+
+                error: function(xhr, status, error) {
+                    // Tangani kesalahan jika ada
+                    showAlert("Error: " + error);
+                }
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="section has-text-centered">
+        <h1 class="title">User Registration Page</h1>
+        <div class="container" style="width: 60%">
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="userid">ID</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <input type="text" class="input" id="userid" aria-describedby="emailHelp"
+                                placeholder="My ID" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="userpw">PW</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <input type="password" class="input" id="userpw" placeholder="My Password" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label" for="usernick">NICKNAME</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <input type="text" class="input" id="usernick" placeholder="My Nickname" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="button is-primary" onclick="register()">User Registration</button>
+            <p class="mt-4">Already have an account? <a href="/login">Sign in here</a></p>
+
+        </div>
+    </div>
+</body>
+
+</html>
