@@ -23,43 +23,45 @@
       });
       {% endif %}
 
-      function login() {
+      function sign_in() {
         $.ajax({
           type: "POST",
-          url: "/api/login",
+          url: "/sign_in",
           data: {
-            id_give: $('#userid').val(),
-            pw_give: $('#userpw').val()
+            username_give: "",
+            password_give: "",
           },
           success: function (response) {
-            if (response['result'] === 'success') {
-              // Jika proses login berhasil, arahkan ke halaman utama
-              $.cookie('mytoken', response['token']);
-              Swal.fire({
-                icon: 'success',
-                title: 'Login successful!',
-                showConfirmButton: false,
-                timer: 1500
-              }).then(() => {
-                window.location.href = '/';
-              });
+            if (response["result"] == "success") {
+              $.cookie("mytoken", response["token"], { path: "/" });
+
+              alert("Login complete!");
+              window.location.href = "/";
             } else {
-              // Jika proses login gagal, tampilkan pesan error
-              Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: response['msg']
-              });
+              // If something goes wrong in the login
+              // process, alert the user of the error
+              alert(response["msg"]);
             }
           },
-          error: function (xhr, status, error) {
-            // Tangani kesalahan jika ada
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'An error occurred while processing your request.'
-            });
-          }
+        });
+      }
+
+      function sign_up() {
+        let username = "";
+        let password = "";
+        let password2 = "";
+
+        $.ajax({
+          type: "POST",
+          url: "/sign_up/save",
+          data: {
+            username_give: username,
+            password_give: password,
+          },
+          success: function (response) {
+            alert("You are registered! Nice!");
+            window.location.replace("/login");
+          },
         });
       }
     </script>

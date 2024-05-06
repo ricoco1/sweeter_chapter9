@@ -1,42 +1,51 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <title>Hello, world!</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <!-- Bulma CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-  <!-- SweetAlert CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
-  <!-- JS -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-  <!-- SweetAlert JS -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-  <script>
-    // Untuk logout, anda hanya tinggal
-    // menghapus token anda dari cookies browser anda
-    function logout(){
-      $.removeCookie('mytoken');
-      // Menggunakan SweetAlert untuk menampilkan pesan logout
-      Swal.fire({
-        icon: 'success',
-        title: 'Logout',
-        text: 'You have been logged out!',
-        showConfirmButton: false,
-        timer: 1500
-      }).then(() => {
-        window.location.href='/login';
-      });
-    }
-  </script>
+    <title>Hello, world!</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link
+      href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+    <!-- SweetAlert CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <!-- SweetAlert JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        // Untuk logout, anda hanya tinggal
+        // menghapus token anda dari cookies browser anda
+        function logout() {
+            $.removeCookie('mytoken');
+            // Menggunakan SweetAlert untuk menampilkan pesan logout
+            Swal.fire({
+                icon: 'success',
+                title: 'Logout',
+                text: 'You have been logged out!',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                window.location.href = '/login';
+            });
+        }
+    </script>
 </head>
+
 <body>
-  <p>
+    <p>
     <h1 class="title">This page can only be viewed for 5 seconds after logging in</h1>
     <h1 class="subtitle">Please try refreshing the page</h1>
-  </p>
-  <h5 class="subtitle">My nickname: {{nickname}}</h5>
-  <button class="button is-danger" onclick="logout()">Logout</button>
+    </p>
+    <h5 class="subtitle">My nickname: {{ nickname }}</h5>
+    <button class="button is-danger" onclick="logout()">Logout</button>
 </body>
+
 </html>
