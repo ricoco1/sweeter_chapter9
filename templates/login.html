@@ -2,104 +2,333 @@
 <html lang="en">
 
 <head>
-    <title>Hello, world!</title>
+    <title>SWEETER</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
     <!-- Bulma CSS -->
+    <!-- <link rel="stylesheet" href="static/style.css"> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css" />
     <!-- JS -->
+    <script defer src="https://use.fontawesome.com/releases/v5.15.3/js/all.js"></script>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
+    <style>
+        * {
+            font-family: 'PT Sans', sans-serif;
+        }
 
+        body {
+            background-color: RGBA(232, 52, 78, 0.2);
+            min-height: 100vh;
+        }
+
+        .section {
+            padding: 1rem 1.5rem;
+            max-width: 750px;
+            margin: auto;
+        }
+
+        .title {
+            font-weight: 800;
+            font-size: 5rem;
+        }
+
+        .subtitle {
+            font-size: 2rem;
+        }
+
+        .is-sparta {
+            color: #e8344e !important;
+        }
+
+        .button.is-sparta {
+            background-color: #e8344e;
+            border-color: transparent;
+            color: #fff !important;
+        }
+
+        .button.is-sparta.is-outlined {
+            background-color: transparent;
+            border-color: #e8344e;
+            color: #e8344e !important;
+        }
+
+        .help {
+            color: gray;
+        }
+    </style>
     <script>
-        {% if msg %}
-      // Jika terdapat pesan (msg) dari server
-      Swal.fire({
-        icon: 'info',
-        title: '{{ msg }}',
-      });
-      {% endif %}
+        $(document).ready(function() {
+                $("#btn-check-duplication").addClass("is-hidden"); // menyembunyikan tombol check id
+                $("#help-password").addClass("is-hidden"); // menyembunyikan pesan for your password
+                $("#help-password2").addClass("is-hidden"); // menyembunyikan pesan enter your password again please
+        });
 
-      function sign_in() {
-        $.ajax({
-          type: "POST",
-          url: "/sign_in",
-          data: {
-            username_give: "",
-            password_give: "",
-          },
-          success: function (response) {
-            if (response["result"] == "success") {
-              $.cookie("mytoken", response["token"], { path: "/" });
+        function sign_in() {
+            $.ajax({
+                type: "POST",
+                url: "/sign_in",
+                data: {
+                    username_give: "",
+                    password_give: "",
+                },
+                success: function(response) {
+                    if (response["result"] == "success") {
+                        $.cookie("mytoken", response["token"], {
+                            path: "/"
+                        });
 
-              alert("Login complete!");
-              window.location.href = "/";
-            } else {
-              // If something goes wrong in the login
-              // process, alert the user of the error
-              alert(response["msg"]);
+                        alert("Login complete!");
+                        window.location.href = "/";
+                    } else {
+                        // If something goes wrong in the login
+                        // process, alert the user of the error
+                        alert(response["msg"]);
+                    }
+                },
+            });
+        }
+
+        function sign_up() {
+            let username = $("#input-username").val();
+            let password = $("#input-password").val();
+            let password2 = $("#input-password2").val();
+            console.log(username, password, password2);
+
+            // Check for id validity
+            if ($("#help-id").hasClass("is-danger")) {
+                alert("Please check your id");
+                return;
+            } else if (!$("#help-id").hasClass("is-success")) {
+                alert("Please double check your id");
+                return;
             }
-          },
-        });
-      }
 
-      function sign_up() {
-        let username = "";
-        let password = "";
-        let password2 = "";
+            // Check for password validity
+            if (password === "") {
+                $("#help-password")
+                    .text("Please enter your password")
+                    .removeClass("is-safe")
+                    .addClass("is-danger");
+                $("#input-password").focus();
+                return;
+            } else if (!is_password(password)) {
+                $("#help-password")
+                    .text(
+                        "Please check your password. For your password, please enter 8-20 English characters, numbers, or the following special characters (!@#$%^&*)"
+                    )
+                    .removeClass("is-safe")
+                    .addClass("is-danger");
+                $("#input-password").focus();
+                return;
+            } else {
+                $("#help-password")
+                    .text("This password can be used!")
+                    .removeClass("is-danger")
+                    .addClass("is-success");
+            }
 
-        $.ajax({
-          type: "POST",
-          url: "/sign_up/save",
-          data: {
-            username_give: username,
-            password_give: password,
-          },
-          success: function (response) {
-            alert("You are registered! Nice!");
-            window.location.replace("/login");
-          },
-        });
+            // Check for password confirmation
+            if (password2 === "") {
+                $("#help-password2")
+                    .text("Please enter your password")
+                    .removeClass("is-safe")
+                    .addClass("is-danger");
+                $("#input-password2").focus();
+                return;
+            } else if (password2 !== password) {
+                $("#help-password2")
+                    .text("Your passwords do not match")
+                    .removeClass("is-safe")
+                    .addClass("is-danger");
+                $("#input-password2").focus();
+                return;
+            } else {
+                $("#help-password2")
+                    .text("Your passwords do not match")
+                    .removeClass("is-danger")
+                    .addClass("is-success");
+            }
+
+            // If all checks pass, send sign up request
+            $.ajax({
+                type: "POST",
+                url: "/sign_up/save",
+                data: {
+                    username_give: username,
+                    password_give: password,
+                },
+                success: function(response) {
+                    alert("Your are signed up! Nice!");
+                    window.location.replace("/login");
+                },
+            });
+        }
+        function toggle_sign_in() {
+          window.location.href = document.referrer;
       }
+      
+        function toggle_sign_up() {
+            $("#sign-up-box").toggleClass("is-hidden");
+            $("#div-sign-in-or-up").toggleClass("is-hidden");
+            $("#btn-check-duplication").toggleClass("is-hidden", false); // Menampilkan tombol check id
+            $("#help-id").toggleClass("is-hidden", false); // Menampilkan pesan for your id
+            $("#help-password").toggleClass("is-hidden", false); // Menampilkan pesan for your password
+            $("#help-password2").toggleClass("is-hidden", false); // Menampilkan pesan enter your password again please
+          
+        }
+
+        function is_nickname(asValue) {
+            var regExp = /^(?=.*[a-zA-Z])[-a-zA-Z0-9_.]{2,10}$/;
+            return regExp.test(asValue);
+        }
+
+        function is_password(asValue) {
+            var regExp = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z!@#$%^&*]{8,20}$/;
+            return regExp.test(asValue);
+        }
+
+        function check_dup() {
+            let inputUsername = $('#input-username');
+            let username = inputUsername.val();
+            console.log(username);
+            if (username === "") {
+                $("#help-id")
+                    .text("Enter in your id")
+                    .removeClass("is-safe")
+                    .addClass("is-danger");
+                inputUsername.focus();
+                return;
+            }
+            if (!is_nickname(username)) {
+                $("#help-id")
+                    .text(
+                        "Please check your id. For your id, please enter 2-10 English characters, numbers, or the following special characters (._-)"
+                    )
+                    .removeClass("is-safe")
+                    .addClass("is-danger");
+                $("#input-username").focus();
+                return;
+            }
+            $("#help-id").addClass("is-loading");
+            $.ajax({
+                type: "POST",
+                url: "/sign_up/check_dup",
+                data: {
+                    username_give: username,
+                },
+                success: function(response) {
+                    if (response["exists"]) {
+                        $("#help-id")
+                            .text("This id is already in use.")
+                            .removeClass("is-safe")
+                            .addClass("is-danger");
+                        $("#input-username").focus();
+                    } else {
+                        $("#help-id")
+                            .text("This id is available!")
+                            .removeClass("is-danger")
+                            .addClass("is-success");
+                    }
+                    $("#help-id").removeClass("is-loading");
+                },
+            });
+        }
     </script>
 </head>
 
 <body>
-    <div class="section has-text-centered">
-        <h1 class="title">Login Page</h1>
-        <div class="container" style="width: 60%">
-            <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                    <label class="label" for="userid">ID</label>
-                </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <input type="text" class="input" id="userid" aria-describedby="emailHelp"
-                                placeholder="My ID" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                    <label class="label" for="userpw">PW</label>
-                </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <input type="password" class="input" id="userpw" placeholder="My Password" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button class="button is-primary" onclick="login()">Login</button>
-            <p class="mt-4">Don't have an account yet? <a href="/register">Sign up here</a></p>
+    <section class="hero is-white">
+        <div class="hero-body has-text-centered" style="padding-bottom: 1rem; margin: auto">
+            <h1 class="title is-sparta">SWEETER</h1>
+            <h3 class="subtitle is-sparta">The sweetest site</h3>
         </div>
-    </div>
+    </section>
+    <section class="section">
+        <div class="container">
+            <div class="box" style="max-width: 480px; margin: auto">
+                <article class="media">
+                    <div class="media-content">
+                        <div class="content">
+                            <div class="field has-addons">
+                                <div class="control has-icons-left" style="width: 100%">
+                                    <input id="input-username" class="input" type="text" placeholder="id" />
+                                    <span class="icon is-small is-left"><i class="fa fa-user"></i></span>
+                                </div>
+                                <div class="control">
+                                    <button id="btn-check-duplication" class="button is-sparta is-outlined"
+                                        onclick="check_dup()">Check your id</button>
+                                </div>
+                            </div>
+                            <p id="help-id" class="help is-hidden">
+                                For your id, please enter 2-10 English characters, numbers, or the following special
+                                characters (._-)
+                            </p>
+
+                            <div class="field">
+                                <div class="control has-icons-left">
+                                    <input id="input-password" class="input" type="password" placeholder="password" />
+                                    <span class="icon is-small is-left"><i class="fa fa-lock"></i></span>
+                                </div>
+                            </div>
+                            <p id="help-password" class="help is-hidden">
+                                For your password, please enter 8-20 English characters, numbers, or the following
+                                special
+                                characters (!@#$%^&*)
+                            </p>
+                        </div>
+                        <div id="div-sign-in-or-up" class="has-text-centered">
+                            <nav class="level is-mobile">
+                                <button class="level-item button is-sparta" onclick="sign_in()">
+                                    Sign In
+                                </button>
+                            </nav>
+                            <hr />
+                            <h4 class="mb-3">If you have not yet signed up</h4>
+                            <nav class="level is-mobile">
+                                <button class="level-item button is-sparta is-outlined" onclick="toggle_sign_up()">
+                                    Sign Up
+                                </button>
+                            </nav>
+                        </div>
+
+                        <div id="sign-up-box" class="is-hidden">
+                            <div class="mb-5">
+                                <div class="field">
+                                    <div class="control has-icons-left" style="width: 100%">
+                                        <input id="input-password2" class="input" type="password"
+                                            placeholder="Confirm your password" />
+                                        <span class="icon is-small is-left"><i class="fa fa-lock"></i></span>
+                                    </div>
+                                    <p id="help-password2" class="help is-hidden">
+                                        Enter your password again please
+                                    </p>
+                                </div>
+                            </div>
+                            <nav class="level is-mobile">
+                                <div class="field is-grouped">
+                                    <div class="control">
+                                        <button class="button is-sparta" onclick="sign_up()">Sign Up</button>
+                                    </div>
+                                    <div class="control">
+                                        <button class="button is-sparta is-outlined"
+                                            onclick="toggle_sign_in()">Cancel</button>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
 </body>
 
 </html>

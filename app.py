@@ -63,18 +63,26 @@ def sign_in():
 
 @app.route("/sign_up/save", methods=["POST"])
 def sign_up():
-    # an api endpoint for signing up
-    username_receive = request.form["username_give"]
-    password_receive = request.form["password_give"]
-    password_hash = hashlib.sha256(password_receive.encode("utf-8")).hexdigest()
-    # we should save the user to the database
-    return jsonify({"result": "success"})
+    username_receive = request.form['username_give']
+    password_receive = request.form['password_give']
+    password_hash = hashlib.sha256(password_receive.encode('utf-8')).hexdigest()
+    doc = {
+        "username": username_receive,                               # id
+        "password": password_hash,                                  # password
+        "profile_name": username_receive,                           # user's name is set to their id by default
+        "profile_pic": "",                                          # profile image file name
+        "profile_pic_real": "profile_pics/profile_placeholder.png", # a default profile image
+        "profile_info": ""                                          # a profile description
+    }
+    db.users.insert_one(doc)
+    return jsonify({'result': 'success'})
 
 
-@app.route("/sign_up/check_dup", methods=["POST"])
+@app.route('/sign_up/check_dup', methods=['POST'])
 def check_dup():
-    # ID we should check whether or not the id is already taken
-    return jsonify({"result": "success"})
+    username_receive = request.form['username_give']
+    exists = bool(db.users.find_one({"username": username_receive}))
+    return jsonify({'result': 'success', 'exists': exists})
 
 
 @app.route("/update_profile", methods=["POST"])
@@ -130,8 +138,9 @@ def secret():
     # token_receive = request.cookies.get("mytoken")
     # try:
     #     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=["HS256"])
-    #     # if this is my own profile, True
-    #     # if this is somebody else's profile, False
+    #     # if t his is my own profile, True
+    #     # if
+    #  this is somebody else's profile, False
     #     status = username == payload["id"]  
 
     #     user_info = db.users.find_one({"username": username}, {"_id": False})
