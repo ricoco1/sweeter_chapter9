@@ -199,29 +199,25 @@ def update_like():
         count = db.likes.count_documents(
             {"post_id": post_id_receive, "type": type_receive}
         )
-        return jsonify({"result": "success", "msg": "updated", "count": count})
+        return jsonify({"result": "success", "msg": "updated", "count": count})  # Include count in the response
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("home"))
+
 
 @app.route('/about', methods=['GET'])
 def about():
     return render_template('about.html')
 
-@app.route('/secret', methods=['GET'])
+@app.route("/secret", methods=['GET'])
 def secret():
-    return render_template('secret.html')
-    # token_receive = request.cookies.get("mytoken")
-    # try:
-    #     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=["HS256"])
-    #     # if t his is my own profile, True
-    #     # if
-    #  this is somebody else's profile, False
-    #     status = username == payload["id"]  
+    token_receive = request.cookies.get("mytoken")
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.users.find_one({'username': payload.get('id')})
+        return render_template('secret.html', user_info=user_info)
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for('home'))
 
-    #     user_info = db.users.find_one({"username": username}, {"_id": False})
-    #     return render_template("user.html", user_info=user_info, status=status)
-    # except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-    #     return redirect(url_for("home"))
 
 
 

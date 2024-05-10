@@ -14,12 +14,7 @@ function post() {
         }
     })
 }
-let class_heart = ""
-if (post["heart_by_me"]) {
-    class_heart = "fa-heart"
-} else {
-    class_heart = "fa-heart-o"
-}
+
 
 function get_posts() {
     $("#post-box").empty();
@@ -34,6 +29,8 @@ function get_posts() {
                     let post = posts[i];
                     let time_post = new Date(post["date"]);
                     let time_before = time2str(time_post);
+                    let class_heart = post["heart_by_me"] ? "fa-heart" : "fa-heart-o";
+                    
                     let html_temp = `<div class="box" id="${post["_id"]}">
                                   <article class="media">
                                       <div class="media-left">
@@ -57,7 +54,6 @@ function get_posts() {
                                                                                      aria-hidden="true"></i></span>&nbsp;<span class="like-num">${num2str(post['count_heart'])}</span>
                                                   </a>
                                               </div>
-
                                           </nav>
                                       </div>
                                   </article>
@@ -68,6 +64,9 @@ function get_posts() {
         },
     });
 }
+
+
+
 
 function time2str(date) {
     let today = new Date();
@@ -86,16 +85,17 @@ function time2str(date) {
     }
     return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
 }
-function num2str(count){
-  if (count>10000){
-    return parseInt(count/1000)+'k';
-  }
-  if (count>500){
-    return parseInt(count/100)/10+'k';
-  }
-  if(count==0){
-    return '';
-  }
+function num2str(count) {
+    if (count > 10000) {
+        return parseInt(count / 1000) + 'k';
+    }
+    if (count > 500) {
+        return parseInt(count / 100) / 10 + 'k';
+    }
+    if (count > 0) {
+        return count.toString(); 
+    }
+    return ''; 
 }
 
 function toggle_like(post_id, type) {
@@ -113,9 +113,15 @@ function toggle_like(post_id, type) {
             },
             success: function(response) {
                 console.log("unlike");
+                console.log(response); // Tambahkan ini untuk mencetak respons ke konsol
                 $i_like.addClass("fa-heart-o").removeClass("fa-heart");
                 $a_like.find("span.like-num").text(num2str(response["count"]));
             },
+            error: function(xhr, status, error) {
+                console.log("Error:", error); // Tambahkan ini untuk mencetak pesan kesalahan ke konsol
+                console.log("Status:", xhr.status); // Tambahkan ini untuk mencetak status respons ke konsol
+                console.log("Response Text:", xhr.responseText); // Tambahkan ini untuk mencetak respons teks ke konsol
+            }
         });
     } else {
         $.ajax({
@@ -128,9 +134,15 @@ function toggle_like(post_id, type) {
             },
             success: function(response) {
                 console.log("like");
+                console.log(response); // Tambahkan ini untuk mencetak respons ke konsol
                 $i_like.addClass("fa-heart").removeClass("fa-heart-o");
                 $a_like.find("span.like-num").text(response["count"]);
             },
+            error: function(xhr, status, error) {
+                console.log("Error:", error); // Tambahkan ini untuk mencetak pesan kesalahan ke konsol
+                console.log("Status:", xhr.status); // Tambahkan ini untuk mencetak status respons ke konsol
+                console.log("Response Text:", xhr.responseText); // Tambahkan ini untuk mencetak respons teks ke konsol
+            }
         });
     }
 }
