@@ -2,96 +2,128 @@
 <html lang="en">
 
 <head>
-    <title>SWEETER</title>
+    <title>Log In | SWEETER</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
-    <!-- Bulma CSS -->
-    <!-- <link rel="stylesheet" href="static/style.css"> -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css" />
-    <!-- JS -->
-    <script defer src="https://use.fontawesome.com/releases/v5.15.3/js/all.js"></script>
 
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css" />
+    <!-- Font Awesome CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+    <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <link href="{{ url_for('static', filename = 'mystyle.css') }}" rel="stylesheet" />
+    <link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon">
 
-    <style>
-        * {
-            font-family: 'PT Sans', sans-serif;
-        }
-
-        body {
-            background-color: RGBA(232, 52, 78, 0.2);
-            min-height: 100vh;
-        }
-
-        .section {
-            padding: 1rem 1.5rem;
-            max-width: 750px;
-            margin: auto;
-        }
-
-        .title {
-            font-weight: 800;
-            font-size: 5rem;
-        }
-
-        .subtitle {
-            font-size: 2rem;
-        }
-
-        .is-sparta {
-            color: #e8344e !important;
-        }
-
-        .button.is-sparta {
-            background-color: #e8344e;
-            border-color: transparent;
-            color: #fff !important;
-        }
-
-        .button.is-sparta.is-outlined {
-            background-color: transparent;
-            border-color: #e8344e;
-            color: #e8344e !important;
-        }
-
-        .help {
-            color: gray;
-        }
-    </style>
     <script>
-        $(document).ready(function() {
-                $("#btn-check-duplication").addClass("is-hidden"); // menyembunyikan tombol check id
-                $("#help-password").addClass("is-hidden"); // menyembunyikan pesan for your password
-                $("#help-password2").addClass("is-hidden"); // menyembunyikan pesan enter your password again please
-        });
-
+        // {% if msg %}
+        //     alert("{{ msg }}")
+        // {% endif %}
         function sign_in() {
+            let username = $("#input-username").val();
+            let password = $("#input-password").val();
+
+            if (username === "") {
+                $("#help-id-login").text("Please input your id.");
+                $("#input-username").focus();
+                return;
+            } else {
+                $("#help-id-login").text("");
+            }
+
+            if (password === "") {
+                $("#help-password-login").text("Please input your password.");
+                $("#input-password").focus();
+                return;
+            } else {
+                $("#help-password-login").text("");
+            }
+
+            console.log(username, password);
             $.ajax({
                 type: "POST",
                 url: "/sign_in",
                 data: {
-                    username_give: "",
-                    password_give: "",
+                    username_give: username,
+                    password_give: password,
                 },
                 success: function(response) {
-                    if (response["result"] == "success") {
+                    if (response["result"] === "success") {
                         $.cookie("mytoken", response["token"], {
                             path: "/"
                         });
-
-                        alert("Login complete!");
-                        window.location.href = "/";
+                        window.location.replace("/");
                     } else {
-                        // If something goes wrong in the login
-                        // process, alert the user of the error
                         alert(response["msg"]);
                     }
+                },
+            });
+        }
+
+        function toggle_sign_up() {
+            $("#sign-up-box").toggleClass("is-hidden");
+            $("#div-sign-in-or-up").toggleClass("is-hidden");
+            $("#btn-check-dup").toggleClass("is-hidden");
+            $("#help-id").toggleClass("is-hidden");
+            $("#help-password").toggleClass("is-hidden");
+            $("#help-password2").toggleClass("is-hidden");
+        }
+
+        function is_nickname(asValue) {
+            var regExp = /^(?=.*[a-zA-Z])[-a-zA-Z0-9_.]{2,10}$/;
+            return regExp.test(asValue);
+        }
+
+        function is_password(asValue) {
+            var regExp = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z!@#$%^&*]{8,20}$/;
+            return regExp.test(asValue);
+        }
+
+        function check_dup() {
+            let username = $("#input-username").val();
+            console.log(username);
+            if (username === "") {
+                $("#help-id")
+                    .text("Enter in your id")
+                    .removeClass("is-safe")
+                    .addClass("is-danger");
+                $("#input-username").focus();
+                return;
+            }
+            if (!is_nickname(username)) {
+                $("#help-id")
+                    .text(
+                        "Please check your id. For your id, please enter 2-10 English characters, numbers, or the following special characters (._-)"
+                    )
+                    .removeClass("is-safe")
+                    .addClass("is-danger");
+                $("#input-username").focus();
+                return;
+            }
+            $("#help-id").addClass("is-loading");
+            $.ajax({
+                type: "POST",
+                url: "/sign_up/check_dup",
+                data: {
+                    username_give: username,
+                },
+                success: function(response) {
+                    console.log(response);
+                    if (response["exists"]) {
+                        $("#help-id")
+                            .text("This id is already in use.")
+                            .removeClass("is-safe")
+                            .addClass("is-danger");
+                        $("#input-username").focus();
+                    } else {
+                        $("#help-id")
+                            .text("This id is available!")
+                            .removeClass("is-danger")
+                            .addClass("is-success");
+                    }
+                    $("#help-id").removeClass("is-loading");
                 },
             });
         }
@@ -102,7 +134,6 @@
             let password2 = $("#input-password2").val();
             console.log(username, password, password2);
 
-            // Check for id validity
             if ($("#help-id").hasClass("is-danger")) {
                 alert("Please check your id");
                 return;
@@ -111,7 +142,6 @@
                 return;
             }
 
-            // Check for password validity
             if (password === "") {
                 $("#help-password")
                     .text("Please enter your password")
@@ -135,7 +165,6 @@
                     .addClass("is-success");
             }
 
-            // Check for password confirmation
             if (password2 === "") {
                 $("#help-password2")
                     .text("Please enter your password")
@@ -144,20 +173,18 @@
                 $("#input-password2").focus();
                 return;
             } else if (password2 !== password) {
-                $("#help-password2")
+                $("#password-match-msg")
                     .text("Your passwords do not match")
                     .removeClass("is-safe")
                     .addClass("is-danger");
                 $("#input-password2").focus();
                 return;
             } else {
-                $("#help-password2")
-                    .text("Your passwords do not match")
+                $("#password-match-msg")
+                    .text("Your passwords match!")
                     .removeClass("is-danger")
                     .addClass("is-success");
             }
-
-            // If all checks pass, send sign up request
             $.ajax({
                 type: "POST",
                 url: "/sign_up/save",
@@ -171,75 +198,11 @@
                 },
             });
         }
-        function toggle_sign_in() {
-          window.location.href = document.referrer;
-      }
-      
-        function toggle_sign_up() {
-            $("#sign-up-box").toggleClass("is-hidden");
-            $("#div-sign-in-or-up").toggleClass("is-hidden");
-            $("#btn-check-duplication").toggleClass("is-hidden", false); // Menampilkan tombol check id
-            $("#help-id").toggleClass("is-hidden", false); // Menampilkan pesan for your id
-            $("#help-password").toggleClass("is-hidden", false); // Menampilkan pesan for your password
-            $("#help-password2").toggleClass("is-hidden", false); // Menampilkan pesan enter your password again please
-          
-        }
 
-        function is_nickname(asValue) {
-            var regExp = /^(?=.*[a-zA-Z])[-a-zA-Z0-9_.]{2,10}$/;
-            return regExp.test(asValue);
-        }
-
-        function is_password(asValue) {
-            var regExp = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z!@#$%^&*]{8,20}$/;
-            return regExp.test(asValue);
-        }
-
-        function check_dup() {
-            let inputUsername = $('#input-username');
-            let username = inputUsername.val();
-            console.log(username);
-            if (username === "") {
-                $("#help-id")
-                    .text("Enter in your id")
-                    .removeClass("is-safe")
-                    .addClass("is-danger");
-                inputUsername.focus();
-                return;
-            }
-            if (!is_nickname(username)) {
-                $("#help-id")
-                    .text(
-                        "Please check your id. For your id, please enter 2-10 English characters, numbers, or the following special characters (._-)"
-                    )
-                    .removeClass("is-safe")
-                    .addClass("is-danger");
-                $("#input-username").focus();
-                return;
-            }
-            $("#help-id").addClass("is-loading");
-            $.ajax({
-                type: "POST",
-                url: "/sign_up/check_dup",
-                data: {
-                    username_give: username,
-                },
-                success: function(response) {
-                    if (response["exists"]) {
-                        $("#help-id")
-                            .text("This id is already in use.")
-                            .removeClass("is-safe")
-                            .addClass("is-danger");
-                        $("#input-username").focus();
-                    } else {
-                        $("#help-id")
-                            .text("This id is available!")
-                            .removeClass("is-danger")
-                            .addClass("is-success");
-                    }
-                    $("#help-id").removeClass("is-loading");
-                },
-            });
+        function clearInputs() {
+            $("#input-username").val("");
+            $("#input-password").val("");
+            $("#input-password2").val("");
         }
     </script>
 </head>
@@ -251,6 +214,7 @@
             <h3 class="subtitle is-sparta">The sweetest site</h3>
         </div>
     </section>
+
     <section class="section">
         <div class="container">
             <div class="box" style="max-width: 480px; margin: auto">
@@ -262,32 +226,36 @@
                                     <input id="input-username" class="input" type="text" placeholder="id" />
                                     <span class="icon is-small is-left"><i class="fa fa-user"></i></span>
                                 </div>
-                                <div class="control">
-                                    <button id="btn-check-duplication" class="button is-sparta is-outlined"
-                                        onclick="check_dup()">Check your id</button>
+                                <div id="btn-check-dup" class="control is-hidden">
+                                    <button class="button is-sparta" onclick="check_dup()">
+                                        Check your id
+                                    </button>
                                 </div>
                             </div>
                             <p id="help-id" class="help is-hidden">
-                                For your id, please enter 2-10 English characters, numbers, or the following special
-                                characters (._-)
+                                For your id, please enter 2-10 English characters, numbers, or
+                                the following special characters (._-)
                             </p>
+                            <p id="help-id-login" class="help is-danger"></p>
 
                             <div class="field">
                                 <div class="control has-icons-left">
                                     <input id="input-password" class="input" type="password" placeholder="password" />
                                     <span class="icon is-small is-left"><i class="fa fa-lock"></i></span>
                                 </div>
+                                <p id="help-password" class="help is-hidden">
+                                    For your password, please enter 8-20 English characters,
+                                    numbers, or the following special characters (!@#$%^&*)
+                                </p>
                             </div>
-                            <p id="help-password" class="help is-hidden">
-                                For your password, please enter 8-20 English characters, numbers, or the following
-                                special
-                                characters (!@#$%^&*)
-                            </p>
                         </div>
                         <div id="div-sign-in-or-up" class="has-text-centered">
                             <nav class="level is-mobile">
                                 <button class="level-item button is-sparta" onclick="sign_in()">
                                     Sign In
+                                </button>
+                                <button class="level-item button" onclick="clearInputs()">
+                                    Clear
                                 </button>
                             </nav>
                             <hr />
@@ -308,20 +276,23 @@
                                         <span class="icon is-small is-left"><i class="fa fa-lock"></i></span>
                                     </div>
                                     <p id="help-password2" class="help is-hidden">
-                                        Enter your password again please
+                                        Please enter your password again
                                     </p>
+                                    <!-- Tambahkan paragraf di bawah untuk menampilkan pesan -->
+                                    <p id="password-match-msg" class="help is-danger"></p>
                                 </div>
                             </div>
                             <nav class="level is-mobile">
-                                <div class="field is-grouped">
-                                    <div class="control">
-                                        <button class="button is-sparta" onclick="sign_up()">Sign Up</button>
-                                    </div>
-                                    <div class="control">
-                                        <button class="button is-sparta is-outlined"
-                                            onclick="toggle_sign_in()">Cancel</button>
-                                    </div>
-                                </div>
+                                <button class="level-item button is-sparta" onclick="sign_up()">
+                                    Sign Up
+                                </button>
+                                <button class="level-item button is-sparta is-outlined" onclick="toggle_sign_up()">
+                                    Cancel
+                                </button>
+                                <button class="level-item button" onclick="clearInputs()">
+                                    Clear
+                                </button>
+
                             </nav>
                         </div>
                     </div>
