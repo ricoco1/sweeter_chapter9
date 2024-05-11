@@ -13,7 +13,12 @@
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="static/mystyle.css">
     <link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon">
-
+    <meta property="og:title" content="Sweeter - the sweetest site" />
+    <meta property="og:description" content="mini project for Web Plus" />
+    <meta
+      property="og:image"
+      content="{{ url_for('static', filename='ogimage.jpg') }}"
+    />
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
@@ -29,7 +34,6 @@
     <nav class="navbar is-fixed-top is-white" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
-                <link rel="icon" type="image/png" href="{{ url_for('static', filename = 'favicon.ico') }}">
                 <strong class="is-sparta logo-text">SWEETER</strong>
             </a>
         </div>
@@ -38,8 +42,7 @@
         <article class="media">
             <figure class="media-left" style="align-self: center">
                 <a class="image is-32x32" href="/user/{{ user_info . username }}">
-                    <!-- <img class="is-rounded" src="{{ url_for('static', filename = user_info . profile_pic_real) }}"> -->
-                    <img class="is-rounded" src="{{ url_for('static', filename = user_info . profile_pic_real) }}">
+                    <img class="is-rounded" src="{{ url_for('static', filename='profile_pics/' + user_info.profile_pic_real) }}" />
 
                 </a>
             </figure>
